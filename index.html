@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>20以内退位减法练习</title>
+    <title>马里奥闯关减法练习</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,6 +17,7 @@
         .problem {
             font-size: 2em;
             margin: 20px 0;
+            color: #333; /* 题目文字颜色改为深色 */
         }
         input {
             padding: 10px;
@@ -39,18 +40,119 @@
         .result {
             font-size: 1.5em;
             margin-top: 20px;
-            color: #333;
+            color: #333; /* 结果文字颜色改为深色 */
+        }
+        /* 游戏场景 */
+        .game-container {
+            position: relative;
+            width: 80%;
+            height: 300px; /* 增加高度以容纳背景图 */
+            margin: 0 auto;
+            background-image: url('https://zaaap-1254235226.cos.ap-guangzhou.myqcloud.com/images/2022/08/31/58bb1252ee0e29e58667b0f34dd18b93.jpg?imageMogr2/thumbnail/%2150p');
+            background-size: cover; /* 背景图覆盖整个容器 */
+            background-position: center; /* 背景图居中 */
+            border: 2px solid #333;
+            overflow: hidden;
+        }
+        .mario {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 50px;
+            transition: left 0.5s ease-in-out;
+        }
+        .flag {
+            position: absolute;
+            bottom: 0;
+            right: 20px;
+            width: 30px;
+            height: 100px;
+            background-color: red;
+        }
+        /* 烟花效果 */
+        .fireworks {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        .firework {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #ff0;
+            border-radius: 50%;
+            animation: explode 1s ease-out;
+        }
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(10); opacity: 0; }
+        }
+        /* 闯关成功提示 */
+        .congrats {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3em;
+            color: #ffcc00;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            animation: zoomIn 1s ease-in-out;
+        }
+        @keyframes zoomIn {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            100% { transform: translate(-50%, -50%) scale(1); }
         }
     </style>
 </head>
 <body>
-    <h1>20以内退位减法练习</h1>
+    <h1>马里奥闯关减法练习</h1>
     <div class="problem" id="problem">10 - 5 = ?</div>
     <input type="text" id="answer" placeholder="输入答案">
     <button onclick="checkAnswer()">提交</button>
     <div class="result" id="result"></div>
 
+    <!-- 游戏场景 -->
+    <div class="game-container">
+        <img src="https://5b0988e595225.cdn.sohucs.com/images/20180206/f44bbbfa402c4507a57e424b14833db1.gif" alt="Mario" class="mario" id="mario">
+        <div class="flag"></div>
+    </div>
+
+    <!-- 烟花效果 -->
+    <div class="fireworks" id="fireworks"></div>
+
+    <!-- 闯关成功提示 -->
+    <div class="congrats" id="congrats" style="display: none;">恭喜你闯关成功！</div>
+
     <script>
+        // 表扬性话语
+        const praiseMessages = [
+            "你真棒！",
+            "你真是计算小达人！",
+            "Excellent！",
+            "太厉害了！",
+            "继续加油！"
+        ];
+
+        // 鼓励性话语
+        const encourageMessages = [
+            "请你再试试！",
+            "试试破十法！",
+            "别灰心，再试一次！",
+            "加油，你可以的！",
+            "再仔细想想哦！"
+        ];
+
+        // 随机选择一句话
+        function getRandomMessage(messages) {
+            return messages[Math.floor(Math.random() * messages.length)];
+        }
+
         // 生成一个20以内的退位减法题目
         function generateProblem() {
             const a = Math.floor(Math.random() * 11) + 10; // 10到20之间的数
@@ -67,16 +169,73 @@
             }
 
             const correctAnswer = currentProblem.a - currentProblem.b;
+            const resultDiv = document.getElementById('result');
+
             if (userAnswer === correctAnswer) {
-                document.getElementById('result').innerText = "正确！";
+                resultDiv.innerHTML = `正确！${getRandomMessage(praiseMessages)}`;
+                moveMario(50); // 马里奥向前移动
             } else {
-                document.getElementById('result').innerText = `错误，正确答案是 ${correctAnswer}。`;
+                resultDiv.innerHTML = `错误，正确答案是 ${correctAnswer}。${getRandomMessage(encourageMessages)}`;
+                moveMario(-50); // 马里奥后退
             }
 
             // 生成下一题
             currentProblem = generateProblem();
             document.getElementById('problem').innerText = `${currentProblem.a} - ${currentProblem.b} = ?`;
             document.getElementById('answer').value = ''; // 清空输入框
+        }
+
+        // 马里奥移动
+        function moveMario(step) {
+            const mario = document.getElementById('mario');
+            const currentLeft = parseInt(window.getComputedStyle(mario).left);
+            let newLeft = currentLeft + step; // 根据步长移动
+
+            // 确保马里奥不会退到起点左侧
+            if (newLeft < 0) {
+                newLeft = 0;
+            }
+
+            mario.style.left = `${newLeft}px`;
+
+            // 检查是否到达终点
+            const gameContainerWidth = document.querySelector('.game-container').offsetWidth;
+            if (newLeft >= gameContainerWidth - 100) {
+                showFireworks(); // 播放烟花
+                showCongrats(); // 显示闯关成功提示
+                resetGame(); // 重置游戏
+            }
+        }
+
+        // 播放烟花
+        function showFireworks() {
+            const fireworks = document.getElementById('fireworks');
+            for (let i = 0; i < 50; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.left = `${Math.random() * 100}%`;
+                firework.style.top = `${Math.random() * 100}%`;
+                firework.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                fireworks.appendChild(firework);
+                setTimeout(() => firework.remove(), 1000); // 1秒后移除烟花
+            }
+        }
+
+        // 显示闯关成功提示
+        function showCongrats() {
+            const congrats = document.getElementById('congrats');
+            congrats.style.display = 'block';
+            setTimeout(() => {
+                congrats.style.display = 'none';
+            }, 3000); // 3秒后隐藏提示
+        }
+
+        // 重置游戏
+        function resetGame() {
+            const mario = document.getElementById('mario');
+            mario.style.left = '0px'; // 马里奥回到起点
+            currentProblem = generateProblem();
+            document.getElementById('problem').innerText = `${currentProblem.a} - ${currentProblem.b} = ?`;
         }
 
         // 初始化题目
