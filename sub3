@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>20以内退位减法练习</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+            background-color: #f0f8ff;
+        }
+        h1 {
+            color: #333;
+        }
+        .problem {
+            font-size: 2em;
+            margin: 20px 0;
+        }
+        input {
+            padding: 10px;
+            font-size: 1.2em;
+            margin: 10px;
+            width: 100px;
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            font-size: 1.5em;
+            margin-top: 20px;
+            color: #333;
+        }
+        /* 马里奥动画 */
+        @keyframes jump {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        .mario {
+            width: 50px;
+            height: 50px;
+            animation: jump 0.5s infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+        .input-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>20以内退位减法练习</h1>
+    <div class="problem" id="problem">10 - 5 = ?</div>
+    <div class="input-container">
+        <input type="text" id="answer" placeholder="输入答案">
+        <img src="https://media.giphy.com/media/3o7TKz2eMXx7D5Yt6w/giphy.gif" alt="Mario" class="mario">
+    </div>
+    <button onclick="checkAnswer()">提交</button>
+    <div class="result" id="result"></div>
+
+    <script>
+        // 表扬性话语
+        const praiseMessages = [
+            "你真棒！",
+            "你真是计算小达人！",
+            "Excellent！",
+            "太厉害了！",
+            "继续加油！"
+        ];
+
+        // 鼓励性话语
+        const encourageMessages = [
+            "请你再试试！",
+            "试试破十法！",
+            "别灰心，再试一次！",
+            "加油，你可以的！",
+            "再仔细想想哦！"
+        ];
+
+        // 随机选择一句话
+        function getRandomMessage(messages) {
+            return messages[Math.floor(Math.random() * messages.length)];
+        }
+
+        // 生成一个20以内的退位减法题目
+        function generateProblem() {
+            const a = Math.floor(Math.random() * 11) + 10; // 10到20之间的数
+            const b = Math.floor(Math.random() * 9) + 1;   // 1到9之间的数
+            return { a, b };
+        }
+
+        // 检查答案是否正确
+        function checkAnswer() {
+            const userAnswer = parseInt(document.getElementById('answer').value);
+            if (isNaN(userAnswer)) {
+                document.getElementById('result').innerText = "请输入有效的数字！";
+                return;
+            }
+
+            const correctAnswer = currentProblem.a - currentProblem.b;
+            const resultDiv = document.getElementById('result');
+
+            if (userAnswer === correctAnswer) {
+                resultDiv.innerHTML = `正确！${getRandomMessage(praiseMessages)} <span class="star">⭐</span>`;
+            } else {
+                resultDiv.innerHTML = `错误，正确答案是 ${correctAnswer}。${getRandomMessage(encourageMessages)} <span class="encourage">😊</span>`;
+            }
+
+            // 生成下一题
+            currentProblem = generateProblem();
+            document.getElementById('problem').innerText = `${currentProblem.a} - ${currentProblem.b} = ?`;
+            document.getElementById('answer').value = ''; // 清空输入框
+        }
+
+        // 初始化题目
+        let currentProblem = generateProblem();
+        document.getElementById('problem').innerText = `${currentProblem.a} - ${currentProblem.b} = ?`;
+    </script>
+</body>
+</html>
